@@ -1,0 +1,79 @@
+/* A depleting hairline rule, not a progress widget. Hardcore modes only. */
+
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  min-width: calc(var(--space-9) * 1.4);
+}
+
+.readout {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  color: var(--slate-deep);
+  transition: color var(--dur-base) var(--ease-paper);
+}
+
+.numerals {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+}
+
+.track {
+  position: relative;
+  width: 100%;
+  height: var(--rule-thick);
+  background: var(--paper-edge);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+/* Scaling beats animating `width`: it stays on the compositor, so the rule
+   depletes smoothly instead of stepping on every tick. */
+.fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  background: var(--slate);
+  transition:
+    transform var(--dur-slow) linear,
+    background-color var(--dur-base) var(--ease-paper);
+}
+
+.warn .fill {
+  background: var(--warning);
+}
+
+.warn .readout {
+  color: var(--warning);
+  animation: pulseSoft calc(var(--dur-reveal) * 1.4) var(--ease-paper) infinite;
+}
+
+/* CSS Modules scopes `@keyframes` names per file and rewrites the animation
+   names it finds in this file to match. A reference to the `pulseSoft` declared
+   in globals.css is rewritten the same way, leaving it pointing at a keyframes
+   that does not exist — the build stays green and the animation silently never
+   runs. `:global()` cannot fix it either: it is a selector pseudo-class and is
+   invalid in a value position. Declaring the keyframes locally is what actually
+   works; keep it in step with the `pulseSoft` in globals.css. */
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}

@@ -1,0 +1,263 @@
+/* The play surface: a masthead rule, a stack of clue plates, and the guess
+   field docked at the foot of the page. */
+
+/* The route shell already applies the column width and the page padding; this
+   used to re-apply both, which doubled the gutters and the vertical rhythm. */
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  min-width: 0;
+}
+
+/* ---------- Arena: plate left, apparatus right ---------- */
+
+/* Single column first. The two-column split only earns its keep once the plate
+   can hold a readable width alongside the guess field; below that the stacked
+   order is plate, then input, which is also the order of attention. */
+.arena {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (min-width: 62rem) {
+  .arena {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: var(--space-6);
+  }
+
+  /* Sticky so the specimen stays in view while the clue column grows past the
+     fold — the plate is meant to be glanced at continuously, not scrolled to. */
+  .plate {
+    position: sticky;
+    top: var(--space-4);
+  }
+}
+
+.plate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--card);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-rest);
+  min-width: 0;
+}
+
+.plateLabel {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  line-height: 1;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* ---------- Live state ---------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.gauges {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-6);
+}
+
+/* The doubled rule of a printed plate caption. */
+.headerRule {
+  height: calc(var(--rule-hair) * 3);
+  border-top: var(--rule-hair) solid var(--paper-edge);
+  border-bottom: var(--rule-hair) solid var(--paper-edge);
+}
+
+/* ---------- Clue stack ---------- */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stageSlot {
+  display: block;
+}
+
+/* Applied when a plate opens, so the clue settles into the stack rather than
+   appearing instantly. Locked plates never animate. */
+.stageOpen {
+  animation: settleIn var(--dur-reveal) var(--ease-settle) both;
+}
+
+.revealRow {
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- Guess dock ---------- */
+
+/* The guess field now heads its column rather than floating at the foot of the
+   page, so it is pinned to the top on wide screens and simply sits in flow on
+   narrow ones. A bottom-sticky bar here would hover over the middle of the
+   clue stack. */
+.dock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+}
+
+@media (min-width: 62rem) {
+  .dock {
+    position: sticky;
+    top: var(--space-4);
+    z-index: var(--z-sticky);
+    padding: var(--space-3) 0;
+    background: linear-gradient(
+      to bottom,
+      var(--paper) 0%,
+      var(--paper) 78%,
+      transparent 100%
+    );
+  }
+}
+
+.log {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.logItem {
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--incorrect);
+  text-underline-offset: 0.2em;
+}
+
+/* ---------- Resolution ---------- */
+
+.cardDock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+}
+
+.shareNote {
+  min-height: var(--space-4);
+  font-size: var(--step--2);
+  color: var(--sage-deep);
+}
+
+/* ---------- Loading & error ---------- */
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.loadingPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.loadingNote {
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--ink-faint);
+  animation: pulseSoft calc(var(--dur-reveal) * 2) var(--ease-paper) infinite;
+}
+
+.errorPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  max-width: var(--measure);
+}
+
+.errorText {
+  font-size: var(--step-0);
+  color: var(--ink);
+}
+
+.errorHint {
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+}
+
+@media (max-width: 48rem) {
+  .board {
+    padding: var(--space-5) var(--space-4) var(--space-7);
+    gap: var(--space-4);
+  }
+
+  .header {
+    align-items: flex-start;
+  }
+
+  .gauges {
+    width: 100%;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .modeName {
+    font-size: var(--step-2);
+  }
+}
+
+/* CSS Modules scopes `@keyframes` names per file and rewrites the animation
+   names it finds in this file to match. A reference to the `pulseSoft` declared
+   in globals.css is rewritten the same way, leaving it pointing at a keyframes
+   that does not exist — the build stays green and the animation silently never
+   runs. `:global()` cannot fix it either: it is a selector pseudo-class and is
+   invalid in a value position. Declaring the keyframes locally is what actually
+   works; keep it in step with the `pulseSoft` in globals.css. */
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* CSS Modules scopes @keyframes per file and rewrites the animation names it
+   finds here to match. A reference to a keyframes declared in globals.css is
+   rewritten the same way and ends up pointing at a name that was never
+   declared: the build stays green and the animation silently never runs.
+   `:global()` is a selector pseudo-class and is invalid in a value position, so
+   it cannot fix it either. The declaration below is a local copy — keep it in
+   step with the one in globals.css. */
+@keyframes settleIn {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.985); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}

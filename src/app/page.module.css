@@ -1,0 +1,259 @@
+/* =====================================================================
+   Region select. The map is the control; the list beneath it is the same
+   control made reachable by keyboard, not a second way to say the thing.
+   ===================================================================== */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-4) var(--space-7);
+  text-align: center;
+}
+
+.lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  animation: fadeUp var(--dur-slow) var(--ease-settle) both;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 7vw, var(--step-4));
+  line-height: 1;
+}
+
+.tagline {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.prompt {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+}
+
+/* ---------- Breadcrumb ---------- */
+
+.trail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  font-size: var(--step--1);
+}
+
+.crumbGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.crumb {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--slate-deep);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-ghost);
+  text-underline-offset: 0.18em;
+}
+
+.crumb:hover:not(:disabled) {
+  color: var(--clay-deep);
+}
+
+.crumb:disabled {
+  color: var(--ink);
+  text-decoration: none;
+  cursor: default;
+}
+
+.crumbSep {
+  color: var(--ink-ghost);
+}
+
+/* ---------- Map ---------- */
+
+.map {
+  width: 100%;
+  animation: fadeIn var(--dur-slow) var(--ease-paper) both;
+}
+
+/* ---------- Zone list ---------- */
+
+.zoneList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.zoneButton {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    'swatch name'
+    'swatch blurb';
+  align-items: center;
+  gap: 0 var(--space-3);
+  width: 100%;
+  height: 100%;
+  padding: var(--space-3);
+  background: var(--card);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition:
+    border-color var(--dur-fast) var(--ease-paper),
+    background var(--dur-fast) var(--ease-paper),
+    transform var(--dur-fast) var(--ease-paper);
+}
+
+.zoneButton:hover {
+  transform: translateY(-1px);
+  border-color: var(--zone-tone);
+}
+
+.zoneButton[data-selected='true'] {
+  border-color: var(--zone-tone);
+  background: color-mix(in srgb, var(--zone-tone) 22%, var(--card));
+}
+
+.swatch {
+  grid-area: swatch;
+  width: 14px;
+  height: 34px;
+  background: var(--zone-tone);
+  border: var(--rule-hair) solid color-mix(in srgb, var(--zone-tone) 70%, var(--ink));
+  border-radius: var(--radius-sm);
+}
+
+.zoneName {
+  grid-area: name;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.1;
+}
+
+.zoneBlurb {
+  grid-area: blurb;
+  font-size: var(--step--2);
+  color: var(--ink-faint);
+  line-height: 1.3;
+}
+
+/* ---------- Confirm ---------- */
+
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper-warm);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.chosen {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.chosenLabel {
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  line-height: 1;
+}
+
+.chosenName {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.1;
+}
+
+.chosenCount {
+  font-size: var(--step--2);
+  color: var(--ink-faint);
+}
+
+.play {
+  flex-shrink: 0;
+  padding: var(--space-3) var(--space-5);
+  background: var(--sage);
+  border: var(--rule-hair) solid var(--sage-deep);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-rest);
+  color: var(--ink);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  text-decoration: none;
+  transition:
+    transform var(--dur-fast) var(--ease-paper),
+    box-shadow var(--dur-fast) var(--ease-paper);
+}
+
+.play:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-raised);
+  color: var(--ink);
+}
+
+.play:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-inset);
+}
+
+@media (max-width: 34rem) {
+  .confirm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .play {
+    text-align: center;
+  }
+}
+
+/* Local copies — CSS Modules rewrites animation names per file, so a reference
+   to the globals.css keyframes resolves to a name that was never declared. */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

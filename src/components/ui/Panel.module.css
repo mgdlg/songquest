@@ -1,0 +1,74 @@
+/* =====================================================================
+   Panel — a sheet of paper with a hairline border and, optionally, an
+   engraved label notched into the top rule. The rule is drawn by two
+   flexible pseudo-elements so it breaks cleanly around the label.
+   ===================================================================== */
+
+.panel {
+  position: relative;
+  padding: var(--space-5);
+  background-color: var(--panel-face);
+  border: var(--rule-hair) solid var(--panel-edge);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-rest);
+  color: var(--ink);
+}
+
+.raised {
+  box-shadow: var(--shadow-raised);
+}
+
+/* Tighter top padding so the label sits high on the sheet, the way a
+   printed plate captions its own top rule. */
+.labelled {
+  padding-top: var(--space-4);
+}
+
+/* ---------- Tone ---------- */
+
+.paper {
+  --panel-face: var(--card);
+  --panel-edge: var(--paper-edge);
+}
+
+.warm {
+  --panel-face: var(--paper-warm);
+  --panel-edge: var(--paper-edge);
+}
+
+.sage {
+  --panel-face: var(--sage-wash);
+  --panel-edge: var(--sage);
+}
+
+.slate {
+  --panel-face: var(--slate-wash);
+  --panel-edge: var(--slate);
+}
+
+.clay {
+  --panel-face: var(--clay-wash);
+  --panel-edge: var(--clay);
+}
+
+/* ---------- Engraved label ---------- */
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.labelRow::before,
+.labelRow::after {
+  content: '';
+  flex: 1 1 0;
+  height: 0;
+  border-top: var(--rule-hair) solid var(--panel-edge);
+}
+
+.label {
+  flex: 0 0 auto;
+  color: var(--ink-faint);
+}

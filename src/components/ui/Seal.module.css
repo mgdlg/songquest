@@ -1,0 +1,68 @@
+/* =====================================================================
+   Seal — a struck brass medallion. Radial gradient lit from the upper
+   left, a lighter inner ring 2px in, and the resting shadow of an object
+   sitting on the page rather than floating above it.
+   ===================================================================== */
+
+.seal {
+  --seal-size: 72px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--seal-size);
+  height: var(--seal-size);
+  flex: 0 0 auto;
+  border-radius: var(--radius-pill);
+  background-image: radial-gradient(
+    circle at 32% 26%,
+    color-mix(in srgb, var(--seal-face) 72%, var(--paper)) 0%,
+    var(--seal-face) 42%,
+    var(--seal-edge) 100%
+  );
+  /* Inner ring first so it draws over the gradient, then the cast shadow. */
+  box-shadow:
+    inset 0 0 0 var(--rule-thick) color-mix(in srgb, var(--seal-face) 55%, var(--paper)),
+    var(--shadow-raised);
+  user-select: none;
+}
+
+.face {
+  display: block;
+  max-width: calc(var(--seal-size) - var(--space-4));
+  font-family: var(--font-display);
+  font-size: calc(var(--seal-size) * 0.34);
+  line-height: var(--leading-tight);
+  letter-spacing: 0.01em;
+  text-align: center;
+  color: var(--seal-ink);
+  /* A one-pixel counter-toned edge under the glyphs: struck type, and the
+     contrast the lit half of the gradient would otherwise cost us. */
+  text-shadow: 0 1px 0 var(--seal-emboss);
+  overflow-wrap: break-word;
+}
+
+/* ---------- Tone ----------
+   Brass is dark enough at its core to carry parchment type; the pastel
+   tones are not, so they take ink and a light emboss instead. */
+
+.brass {
+  --seal-face: var(--brass);
+  --seal-edge: var(--brass-deep);
+  --seal-ink: var(--paper);
+  --seal-emboss: var(--brass-deep);
+}
+
+.sage {
+  --seal-face: var(--sage);
+  --seal-edge: var(--sage-deep);
+  --seal-ink: var(--ink);
+  --seal-emboss: var(--sage-wash);
+}
+
+.clay {
+  --seal-face: var(--clay);
+  --seal-edge: var(--clay-deep);
+  --seal-ink: var(--ink);
+  --seal-emboss: var(--clay-wash);
+}

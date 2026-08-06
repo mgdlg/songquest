@@ -1,0 +1,187 @@
+/* The guess field reads as a ruled line on a specimen label: a single
+   hairline underneath, no boxed input chrome. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.field {
+  position: relative;
+}
+
+.inputShell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--card);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-bottom: var(--rule-thick) solid var(--ink-ghost);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  box-shadow: var(--shadow-rest);
+  transition: border-color var(--dur-base) var(--ease-paper);
+}
+
+.inputShell:focus-within {
+  border-bottom-color: var(--slate);
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--space-2) 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: var(--leading-tight);
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  outline-offset: var(--space-1);
+}
+
+.input::placeholder {
+  color: var(--ink-faint);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+}
+
+.input:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
+.busy {
+  flex: 0 0 auto;
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  animation: pulseSoft calc(var(--dur-reveal) * 1.6) var(--ease-paper) infinite;
+}
+
+/* ---------- Suggestions ---------- */
+
+.listbox {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + var(--space-2));
+  z-index: var(--z-overlay);
+  max-height: calc(var(--space-9) * 2.4);
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-1) 0;
+  list-style: none;
+  background: var(--card);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lifted);
+  animation: fadeIn var(--dur-fast) var(--ease-paper) both;
+}
+
+.listbox[hidden] {
+  display: none;
+}
+
+.option {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  border-left: var(--rule-thick) solid transparent;
+  transition: background-color var(--dur-fast) var(--ease-paper);
+}
+
+.option + .option {
+  border-top: var(--rule-hair) solid var(--paper-edge);
+}
+
+.optionActive {
+  background: var(--sage-wash);
+  border-left-color: var(--sage-deep);
+}
+
+.optionName {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  color: var(--ink);
+}
+
+.optionBinomial {
+  flex: 0 0 auto;
+  text-align: right;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step--1);
+  letter-spacing: 0.01em;
+  color: var(--burgundy);
+}
+
+/* ---------- Actions & help ---------- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.help {
+  font-size: var(--step--2);
+  line-height: var(--leading-normal);
+  color: var(--ink-faint);
+}
+
+.helpError {
+  color: var(--incorrect);
+}
+
+@media (max-width: 40rem) {
+  .optionBinomial {
+    font-size: var(--step--2);
+  }
+
+  .option {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+
+  .optionBinomial {
+    text-align: left;
+  }
+}
+
+/* CSS Modules scopes `@keyframes` names per file and rewrites the animation
+   names it finds in this file to match. A reference to the `pulseSoft` declared
+   in globals.css is rewritten the same way, leaving it pointing at a keyframes
+   that does not exist — the build stays green and the animation silently never
+   runs. `:global()` cannot fix it either: it is a selector pseudo-class and is
+   invalid in a value position. Declaring the keyframes locally is what actually
+   works; keep it in step with the `pulseSoft` in globals.css. */
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* CSS Modules scopes @keyframes per file and rewrites the animation names it
+   finds here to match. A reference to a keyframes declared in globals.css is
+   rewritten the same way and ends up pointing at a name that was never
+   declared: the build stays green and the animation silently never runs.
+   `:global()` is a selector pseudo-class and is invalid in a value position, so
+   it cannot fix it either. The declaration below is a local copy — keep it in
+   step with the one in globals.css. */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

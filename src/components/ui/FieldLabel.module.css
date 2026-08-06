@@ -1,0 +1,16 @@
+/* Mirrors the global `.fieldLabel` primitive, scoped so consumers get the
+   engraved label without depending on a global class name. */
+
+.fieldLabel {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  /* Compensate for the trailing letterspace so centred labels read centred. */
+  text-indent: var(--tracking-label);
+  color: var(--ink-faint);
+  white-space: nowrap;
+}

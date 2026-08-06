@@ -1,0 +1,233 @@
+/* AudioClipPlayer — a specimen tag with a transport control.
+   Every value is a token from globals.css. */
+
+.player {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--paper-warm);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-rest);
+  animation: fadeIn var(--dur-base) var(--ease-paper) both;
+}
+
+/* An <audio> without controls renders nothing; this is belt and braces. */
+.media {
+  display: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* ---------- Transport ---------- */
+
+.disc {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: var(--space-7);
+  height: var(--space-7);
+  border-radius: var(--radius-pill);
+  background: var(--sage);
+  color: var(--ink);
+  border: var(--rule-hair) solid var(--sage-deep);
+  box-shadow: var(--shadow-rest);
+  transition:
+    background var(--dur-fast) var(--ease-paper),
+    color var(--dur-fast) var(--ease-paper),
+    box-shadow var(--dur-fast) var(--ease-paper);
+}
+
+.disc:hover:not(:disabled) {
+  background: var(--sage-deep);
+  color: var(--paper);
+}
+
+.disc:active:not(:disabled) {
+  box-shadow: var(--shadow-inset);
+}
+
+.disc[aria-pressed='true'] {
+  background: var(--sage-deep);
+  color: var(--paper);
+}
+
+.disc:disabled {
+  background: var(--paper-deep);
+  border-color: var(--paper-edge);
+  color: var(--ink-faint);
+  box-shadow: none;
+  cursor: default;
+}
+
+.glyph {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1;
+}
+
+/* A triangle sits optically left of centre inside a circle. */
+.glyphPlay {
+  transform: translateX(0.06em);
+}
+
+/* ---------- Waveform slot ---------- */
+
+.wave {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@keyframes waveShimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.waveBuffering::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--paper) 78%, transparent) 50%,
+    transparent 100%
+  );
+  animation: waveShimmer calc(var(--dur-reveal) * 1.6) var(--ease-paper) infinite;
+  pointer-events: none;
+}
+
+/* Replaces the waveform when the recording cannot be loaded. */
+.deadRule {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 0;
+  border-top: var(--rule-hair) solid var(--paper-edge);
+}
+
+/* ---------- Time ---------- */
+
+.time {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+  letter-spacing: var(--tracking-wide);
+}
+
+.timeNow {
+  color: var(--ink-soft);
+}
+
+.timeSep {
+  color: var(--ink-ghost);
+}
+
+/* ---------- Labels & attribution ---------- */
+
+.meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.kindLabel {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  line-height: 1;
+}
+
+.unavailable {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  font-style: italic;
+  color: var(--ink-faint);
+}
+
+/* CC BY obligation — rendered whenever a credit exists, never suppressed. */
+.credit {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  line-height: var(--leading-normal);
+  color: var(--ink-faint);
+  border-top: var(--rule-hair) solid var(--paper-edge);
+  padding-top: var(--space-2);
+}
+
+.creditLink {
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-ghost);
+  text-underline-offset: 0.18em;
+}
+
+.creditLink:hover {
+  color: var(--clay-deep);
+}
+
+/* ---------- Sealed (hardcore) ---------- */
+
+.sealedPlayer {
+  background: var(--paper-deep);
+  box-shadow: none;
+}
+
+.sealSlot {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+}
+
+.lockGlyph {
+  width: var(--space-5);
+  height: var(--space-5);
+  color: var(--brass-deep);
+}
+
+.sealedRule {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 3px;
+  border-top: var(--rule-hair) solid var(--paper-edge);
+  border-bottom: var(--rule-hair) solid var(--paper-edge);
+}
+
+.sealedText {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  color: var(--brass-deep);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* CSS Modules scopes @keyframes per file and rewrites the animation names it
+   finds here to match. A reference to a keyframes declared in globals.css is
+   rewritten the same way and ends up pointing at a name that was never
+   declared: the build stays green and the animation silently never runs.
+   `:global()` is a selector pseudo-class and is invalid in a value position, so
+   it cannot fix it either. The declaration below is a local copy — keep it in
+   step with the one in globals.css. */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

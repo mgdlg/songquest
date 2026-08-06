@@ -1,0 +1,117 @@
+/* =====================================================================
+   Play shell — a thin frame around the board. Nothing here may grow
+   wider than its column: the board holds audio players, a map canvas,
+   and a species plate, all of which must survive a 360px screen.
+   ===================================================================== */
+
+/* Wider than the global shell: this is the one screen that runs two columns,
+   and squeezing the plate and the clue stack into 880px leaves neither
+   readable. Every other page stays at --shell-max. */
+.page {
+  max-width: 1120px;
+  margin-inline: auto;
+  padding: var(--space-4) var(--space-3) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+@media (min-width: 30rem) {
+  .page {
+    padding-inline: var(--space-4);
+  }
+}
+
+@media (min-width: 48rem) {
+  .page {
+    padding: var(--space-5) var(--space-5) var(--space-6);
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  animation: fadeIn var(--dur-base) var(--ease-paper) both;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.back {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  text-decoration: none;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.back:hover {
+  color: var(--clay-deep);
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-5);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 400;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink);
+  min-width: 0;
+}
+
+@media (min-width: 48rem) {
+  .title {
+    font-size: var(--step-3);
+  }
+}
+
+.summary {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  line-height: 1.5;
+  min-width: 0;
+}
+
+.board {
+  min-width: 0;
+}
+
+/* Anything the board renders stays inside the column, map tiles included. */
+.board > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* CSS Modules scopes @keyframes per file and rewrites the animation names it
+   finds here to match. A reference to a keyframes declared in globals.css is
+   rewritten the same way and ends up pointing at a name that was never
+   declared: the build stays green and the animation silently never runs.
+   `:global()` is a selector pseudo-class and is invalid in a value position, so
+   it cannot fix it either. The declaration below is a local copy — keep it in
+   step with the one in globals.css. */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

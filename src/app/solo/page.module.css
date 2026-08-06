@@ -1,0 +1,275 @@
+/* =====================================================================
+   Solo. Two ways to play and one switch that changes both — the hardcore
+   rules are stated on the switch itself, so nothing has to be compared
+   across four cards to find them.
+   ===================================================================== */
+
+.screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  min-height: min(74svh, 620px);
+  padding: var(--space-8) var(--space-4) var(--space-7);
+  text-align: center;
+}
+
+.back {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--clay-deep);
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1;
+  animation: fadeUp var(--dur-slow) var(--ease-settle) both;
+}
+
+.regionChip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--paper-warm);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color var(--dur-fast) var(--ease-paper);
+}
+
+.regionChip:hover {
+  border-color: var(--sage);
+  color: var(--ink);
+}
+
+.regionLabel {
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+}
+
+.regionName {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1;
+}
+
+.regionChange {
+  font-size: var(--step--2);
+  color: var(--slate-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 440px;
+  animation: fadeUp var(--dur-slow) var(--ease-settle) 120ms both;
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  aspect-ratio: 1 / 0.92;
+  padding: var(--space-4);
+  background: var(--card);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-rest);
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    transform var(--dur-fast) var(--ease-paper),
+    box-shadow var(--dur-fast) var(--ease-paper),
+    border-color var(--dur-fast) var(--ease-paper);
+}
+
+.choice:hover {
+  transform: translateY(-2px);
+  border-color: var(--sage);
+  box-shadow: var(--shadow-raised);
+}
+
+.choice:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-inset);
+}
+
+.mark {
+  width: 30px;
+  height: 30px;
+  color: var(--sage-deep);
+}
+
+.choiceLabel {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1;
+}
+
+.choiceNote {
+  font-size: var(--step--2);
+  line-height: 1.35;
+  color: var(--ink-faint);
+  max-width: 16ch;
+}
+
+/* The switch carries its own explanation, so the rule change is legible at the
+   moment it is made rather than in a paragraph somewhere above. */
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 440px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper-warm);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition:
+    background var(--dur-fast) var(--ease-paper),
+    border-color var(--dur-fast) var(--ease-paper);
+  animation: fadeUp var(--dur-slow) var(--ease-settle) 200ms both;
+}
+
+.toggle[aria-checked='true'] {
+  background: var(--clay-wash);
+  border-color: var(--clay);
+}
+
+/* Beginner is an easing, not a sharpening — sage rather than clay, so the two
+   switches do not read as two intensities of the same thing. */
+.toggle[data-tone='beginner'][aria-checked='true'] {
+  background: var(--sage-wash);
+  border-color: var(--sage);
+}
+
+.toggle[data-tone='beginner'][aria-checked='true'] .toggleNote {
+  color: var(--sage-deep);
+}
+
+.toggle[data-tone='beginner'][aria-checked='true'] .track {
+  background: var(--sage);
+  border-color: var(--sage-deep);
+}
+
+.toggle:hover {
+  border-color: var(--clay);
+}
+
+.toggleText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggleLabel {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink);
+}
+
+.toggleNote {
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+}
+
+.toggle[aria-checked='true'] .toggleNote {
+  color: var(--clay-deep);
+}
+
+.track {
+  flex-shrink: 0;
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--paper-deep);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-pill);
+  transition: background var(--dur-base) var(--ease-paper);
+}
+
+.track[data-on='true'] {
+  background: var(--clay);
+  border-color: var(--clay-deep);
+}
+
+.thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: var(--card);
+  border-radius: 50%;
+  box-shadow: var(--shadow-rest);
+  transition: transform var(--dur-base) var(--ease-settle);
+}
+
+.track[data-on='true'] .thumb {
+  transform: translateX(20px);
+}
+
+.quiet {
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+  text-decoration-color: var(--ink-ghost);
+}
+
+.quiet:hover {
+  color: var(--clay-deep);
+}
+
+@media (max-width: 400px) {
+  .choices {
+    max-width: 260px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .choice {
+    aspect-ratio: auto;
+    padding: var(--space-4);
+  }
+
+  .choiceNote {
+    max-width: none;
+  }
+}
+
+/* Local copy — CSS Modules rewrites animation names per file, so a reference to
+   the globals.css keyframes resolves to a name that was never declared. */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -1,0 +1,94 @@
+/* The selection plate. Framed like a printed figure: hairline border, a second
+   rule set in from it, and a fixed ratio so the frame holds its height before
+   Leaflet mounts and nothing jumps as tiles arrive. */
+
+.frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  max-height: 56svh;
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-rest);
+  overflow: hidden;
+  background: var(--map-water);
+}
+
+.frame::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  z-index: var(--z-map);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.shimmer {
+  position: absolute;
+  inset: 0;
+  background: var(--paper-warm);
+  animation: pulseSoft var(--dur-slow) var(--ease-paper) infinite;
+}
+
+/* Leaflet writes these onto the SVG paths and tooltip nodes it owns, so they
+   have to be reachable from outside this module's scoping. */
+.zone {
+  cursor: pointer;
+  transition:
+    fill-opacity var(--dur-fast) var(--ease-paper),
+    stroke-width var(--dur-fast) var(--ease-paper);
+}
+
+.zone:focus-visible {
+  outline: 2px solid var(--focus-ring);
+}
+
+.zoneLabel {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: var(--ink) !important;
+  font-family: var(--font-display) !important;
+  font-size: var(--step--1) !important;
+  letter-spacing: var(--tracking-wide);
+  text-shadow:
+    0 1px 2px var(--paper),
+    0 -1px 2px var(--paper),
+    1px 0 2px var(--paper),
+    -1px 0 2px var(--paper);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.zoneLabel::before {
+  display: none !important;
+}
+
+@media (max-width: 40rem) {
+  .frame {
+    aspect-ratio: 4 / 3;
+  }
+
+  .zoneLabel {
+    font-size: var(--step--2) !important;
+  }
+}
+
+/* Local copy: CSS Modules rewrites animation names per file, so a reference to
+   the globals.css keyframes resolves to a name that was never declared. */
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}

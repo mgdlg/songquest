@@ -1,0 +1,73 @@
+/* Waveform — a seeded silhouette, not a decoded signal.
+   Colour comes from --wave-tone, set by the tone class below. */
+
+.wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-1) 0;
+  border-radius: var(--radius-sm);
+  --wave-tone: var(--sage-deep);
+}
+
+.interactive {
+  cursor: pointer;
+  /* The scrub gesture owns horizontal movement; without this the browser
+     steals the drag for panning on touch. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: var(--space-7);
+}
+
+/* The centre line of a printed spectrogram plate. */
+.axis {
+  fill: var(--paper-edge);
+}
+
+.bar {
+  fill: var(--ink-ghost);
+  transition: fill var(--dur-fast) var(--ease-paper);
+}
+
+.barOn {
+  fill: var(--wave-tone);
+}
+
+.head {
+  fill: var(--wave-tone);
+  opacity: 0.45;
+  transition: opacity var(--dur-fast) var(--ease-paper);
+}
+
+@keyframes headBreathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.playing .head {
+  animation: headBreathe calc(var(--dur-slow) * 3) var(--ease-paper) infinite;
+}
+
+.toneSage {
+  --wave-tone: var(--sage-deep);
+}
+
+.toneSlate {
+  --wave-tone: var(--slate-deep);
+}
+
+.toneClay {
+  --wave-tone: var(--clay-deep);
+}

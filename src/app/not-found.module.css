@@ -1,0 +1,101 @@
+/* =====================================================================
+   404 — a missing plate, set as a title page rather than an error box.
+   ===================================================================== */
+
+.page {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4) var(--space-7);
+  text-align: center;
+  animation: fadeUp var(--dur-slow) var(--ease-settle) both;
+}
+
+@media (min-width: 48rem) {
+  .page {
+    padding-block: var(--space-9) var(--space-8);
+  }
+}
+
+.eyebrow {
+  color: var(--ink-faint);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(var(--step-3), 11vw, var(--step-4));
+  font-weight: 400;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink);
+  margin-top: var(--space-4);
+}
+
+.rule {
+  max-width: 12rem;
+  margin: var(--space-5) auto;
+}
+
+.body {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-loose);
+  color: var(--ink-soft);
+  margin-top: var(--space-4);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-7);
+}
+
+.action {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  text-decoration: none;
+  color: var(--ink);
+  padding: var(--space-3) var(--space-5);
+  background: var(--paper-warm);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-rest);
+  transition:
+    background var(--dur-fast) var(--ease-paper),
+    box-shadow var(--dur-base) var(--ease-settle);
+}
+
+.action:hover {
+  background: var(--sage-wash);
+  color: var(--sage-deep);
+  box-shadow: var(--shadow-raised);
+}
+
+.actionQuiet {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  text-decoration: none;
+}
+
+.actionQuiet:hover {
+  color: var(--clay-deep);
+}
+
+/* CSS Modules scopes @keyframes per file and rewrites the animation names it
+   finds here to match. A reference to a keyframes declared in globals.css is
+   rewritten the same way and ends up pointing at a name that was never
+   declared: the build stays green and the animation silently never runs.
+   `:global()` is a selector pseudo-class and is invalid in a value position, so
+   it cannot fix it either. The declaration below is a local copy — keep it in
+   step with the one in globals.css. */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}

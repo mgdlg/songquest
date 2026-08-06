@@ -1,0 +1,120 @@
+/* Four numbered pips. Every state carries a glyph as well as a hue — colour
+   alone is never the signal (House Rule 4). */
+
+.track {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.ring {
+  display: grid;
+  place-items: center;
+  width: var(--space-6);
+  height: var(--space-6);
+  border: var(--rule-hair) solid var(--ink-ghost);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-ghost);
+  transition:
+    color var(--dur-base) var(--ease-paper),
+    border-color var(--dur-base) var(--ease-paper),
+    background-color var(--dur-base) var(--ease-paper),
+    box-shadow var(--dur-base) var(--ease-paper);
+}
+
+.mark {
+  width: var(--space-4);
+  height: var(--space-4);
+}
+
+.numeral {
+  font-family: var(--font-display);
+  font-size: var(--step--2);
+  line-height: 1;
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-faint);
+  transition: color var(--dur-base) var(--ease-paper);
+}
+
+/* ---------- States ---------- */
+
+.pending .ring {
+  border-style: solid;
+  color: var(--ink-ghost);
+}
+
+.current .ring {
+  border-color: var(--slate);
+  background: var(--slate-wash);
+  color: var(--slate-deep);
+  box-shadow: var(--shadow-rest);
+  animation: pulseSoft calc(var(--dur-reveal) * 2.6) var(--ease-paper) infinite;
+}
+
+.current .numeral {
+  color: var(--slate-deep);
+}
+
+.correct .ring {
+  border-color: var(--correct);
+  background: var(--correct-wash);
+  color: var(--correct);
+}
+
+.correct .numeral {
+  color: var(--correct);
+}
+
+.incorrect .ring {
+  border-color: var(--incorrect);
+  background: var(--incorrect-wash);
+  color: var(--incorrect);
+}
+
+.incorrect .numeral {
+  color: var(--incorrect);
+}
+
+.skipped .ring {
+  border-color: var(--ink-ghost);
+  background: var(--paper-deep);
+  color: var(--ink-faint);
+}
+
+.timeout .ring {
+  border-color: var(--warning);
+  background: var(--paper-warm);
+  color: var(--warning);
+}
+
+.timeout .numeral {
+  color: var(--warning);
+}
+
+/* CSS Modules scopes `@keyframes` names per file and rewrites the animation
+   names it finds in this file to match. A reference to the `pulseSoft` declared
+   in globals.css is rewritten the same way, leaving it pointing at a keyframes
+   that does not exist — the build stays green and the animation silently never
+   runs. `:global()` cannot fix it either: it is a selector pseudo-class and is
+   invalid in a value position. Declaring the keyframes locally is what actually
+   works; keep it in step with the `pulseSoft` in globals.css. */
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}

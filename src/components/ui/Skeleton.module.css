@@ -1,0 +1,43 @@
+/* =====================================================================
+   Skeleton — a slow breath between the two paper greys. The deep tone is
+   the ground; a warm overlay fades against it, so the pulse never touches
+   opacity on the surrounding layout.
+   ===================================================================== */
+
+.skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background-color: var(--paper-deep);
+  border-radius: var(--radius-sm);
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--paper-warm);
+  /* Resolves to the local `@keyframes pulseSoft` at the foot of this file — see
+     the note there for why it cannot reference the one in globals.css. */
+  animation-name: pulseSoft;
+  animation-duration: var(--dur-slow);
+  animation-timing-function: var(--ease-paper);
+  animation-iteration-count: infinite;
+}
+
+/* CSS Modules scopes `@keyframes` names per file and rewrites the animation
+   names it finds in this file to match. A reference to the `pulseSoft` declared
+   in globals.css is rewritten the same way, leaving it pointing at a keyframes
+   that does not exist — the build stays green and the animation silently never
+   runs. `:global()` cannot fix it either: it is a selector pseudo-class and is
+   invalid in a value position. Declaring the keyframes locally is what actually
+   works; keep it in step with the `pulseSoft` in globals.css. */
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}

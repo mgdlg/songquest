@@ -1,0 +1,48 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: var(--rule-hair) solid var(--paper-edge);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+}
+
+.caption {
+  caption-side: top;
+  text-align: left;
+  margin-bottom: var(--space-3);
+}
+
+/* Alternating stripes, the way a ruled ledger separates ranks. */
+.row:nth-child(odd) {
+  background-color: var(--paper-warm);
+}
+
+.rank {
+  width: 40%;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--rule-hair) solid var(--paper-edge);
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  font-weight: 400;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+.value {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--rule-hair) solid var(--paper-edge);
+  text-align: right;
+  color: var(--ink);
+  vertical-align: baseline;
+  overflow-wrap: break-word;
+}
+
+/* Genus is a scientific name too, but it is not the answer. */
+.italic {
+  font-style: italic;
+  color: var(--ink-soft);
+}

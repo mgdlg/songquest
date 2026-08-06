@@ -1,0 +1,66 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+}
+
+.caption {
+  caption-side: top;
+  text-align: left;
+  margin-bottom: var(--space-3);
+}
+
+.label {
+  padding: var(--space-1) 0;
+  text-align: left;
+  font-weight: 400;
+  color: var(--ink-soft);
+  vertical-align: baseline;
+}
+
+.note {
+  margin-left: var(--space-2);
+  font-size: var(--step--2);
+  color: var(--ink-faint);
+}
+
+/* Numerals in the display face, tabular so the column aligns like a ledger. */
+.figure {
+  padding: var(--space-1) 0;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+/* The rule a ledger draws before it totals. */
+.totalRow > * {
+  border-top: var(--rule-hair) solid var(--ink-ghost);
+  padding-top: var(--space-3);
+}
+
+.totalLabel {
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  vertical-align: baseline;
+}
+
+.total {
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  vertical-align: baseline;
+  white-space: nowrap;
+}

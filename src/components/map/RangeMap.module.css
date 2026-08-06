@@ -1,0 +1,124 @@
+/* =====================================================================
+   RangeMap — a printed distribution plate, not a web map.
+   Builds on the `.leaflet-*` overrides in globals.css.
+   ===================================================================== */
+
+.plate {
+  display: block;
+  margin: 0;
+  width: 100%;
+}
+
+/* Fixed ratio so the frame occupies its final height before Leaflet mounts —
+   tiles arriving must never reflow the hint stack underneath. */
+.frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  background: var(--map-water);
+  box-shadow: var(--shadow-rest);
+  overflow: hidden;
+}
+
+/* The doubled border of a printed plate: the frame's own hairline, then a
+   second rule set in from it. Sits above every Leaflet pane because `.canvas`
+   isolates the map's internal z-index scale. */
+.frame::after {
+  content: '';
+  position: absolute;
+  inset: var(--space-1);
+  z-index: var(--z-map);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+}
+
+@media (min-width: 40rem) {
+  .frame {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+/* `isolation` contains Leaflet's 200–1000 pane/control z-indices so the plate
+   furniture above can use the design system's own scale. */
+.canvas {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+}
+
+.static {
+  cursor: default;
+}
+
+/* ---------- GBIF density overlay ---------------------------------- */
+
+/* Custom pane; its z-index is set inline in RangeMap.tsx so it always beats
+   the tile pane regardless of stylesheet order.
+
+   The `classic.poly` ramp ships hot yellow-through-red. Desaturating, cooling
+   the hue a few degrees and lifting the brightness lands it between
+   --map-breeding and --map-wintering; multiply blending settles it into the
+   paper the way an ink wash sits on a printed plate. */
+.densityPane {
+  filter: saturate(0.58) hue-rotate(-8deg) brightness(1.12) contrast(0.86);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* ---------- Loading state ----------------------------------------- */
+
+/* Held in the tree (not unmounted) so the shimmer can cross-fade with the
+   first painted tiles instead of cutting to bare paper. */
+.skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-map);
+  pointer-events: none;
+  background-color: var(--paper-warm);
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--map-graticule) 0 var(--rule-hair),
+      transparent var(--rule-hair) var(--space-7)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--map-graticule) 0 var(--rule-hair),
+      transparent var(--rule-hair) var(--space-7)
+    ),
+    linear-gradient(
+      100deg,
+      var(--paper-warm) 20%,
+      var(--paper) 42%,
+      var(--paper-deep) 62%,
+      var(--paper-warm) 80%
+    );
+  background-size: auto, auto, 260% 100%;
+  background-position: 0 0, 0 0, 120% 0;
+  opacity: 0.9;
+  animation: mapShimmer calc(var(--dur-reveal) * 2.4) linear infinite;
+  transition: opacity var(--dur-slow) var(--ease-paper);
+}
+
+.skeletonDone {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes mapShimmer {
+  from {
+    background-position: 0 0, 0 0, 140% 0;
+  }
+  to {
+    background-position: 0 0, 0 0, -40% 0;
+  }
+}
+
+/* ---------- Legend ------------------------------------------------- */
+
+.caption {
+  margin-top: var(--space-3);
+}

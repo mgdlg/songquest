@@ -1,0 +1,165 @@
+/* =====================================================================
+   Button — a letterpress key.
+   Filled face, hairline darker edge, 1px inset highlight along the top.
+   Pressing translates the face down 1px and swaps the resting shadow for
+   an inset one, so the key reads as travelling into the paper.
+   ===================================================================== */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  /* Tracking adds a trailing gap after the last glyph; indent by the same
+     amount so the label sits optically centred. */
+  text-indent: var(--tracking-label);
+  text-align: center;
+  border-style: solid;
+  border-width: var(--rule-hair);
+  border-color: transparent;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--dur-fast) var(--ease-paper),
+    border-color var(--dur-fast) var(--ease-paper),
+    color var(--dur-fast) var(--ease-paper),
+    box-shadow var(--dur-base) var(--ease-paper),
+    transform var(--dur-fast) var(--ease-paper);
+}
+
+.inner {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+/* ---------- Size ---------- */
+
+.sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--step--2);
+}
+
+.md {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--step--1);
+}
+
+.lg {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--step-0);
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+}
+
+/* ---------- Variants ---------- */
+
+.primary {
+  background-color: var(--sage);
+  border-color: var(--sage-deep);
+  color: var(--ink);
+  box-shadow:
+    inset 0 var(--rule-hair) 0 var(--paper),
+    var(--shadow-rest);
+}
+
+.primary:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--sage) 78%, var(--sage-deep));
+}
+
+.secondary {
+  background-color: var(--paper);
+  border-color: var(--paper-edge);
+  color: var(--ink);
+  box-shadow: var(--shadow-rest);
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: var(--paper-warm);
+  border-color: var(--paper-shadow);
+}
+
+.ghost {
+  padding-left: var(--space-1);
+  padding-right: var(--space-1);
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+
+/* The underline grows from the leading edge rather than fading in — a ruled
+   line being drawn, not a hover chrome. */
+.ghost .inner::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--space-1) * -1);
+  height: 0;
+  border-bottom: var(--rule-hair) solid currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-base) var(--ease-settle);
+}
+
+.ghost:hover:not(:disabled) {
+  color: var(--clay-deep);
+}
+
+.ghost:hover:not(:disabled) .inner::after,
+.ghost:focus-visible .inner::after {
+  transform: scaleX(1);
+}
+
+.danger {
+  background-color: var(--incorrect);
+  border-color: color-mix(in srgb, var(--incorrect) 65%, var(--ink));
+  color: var(--paper);
+  box-shadow:
+    inset 0 var(--rule-hair) 0 color-mix(in srgb, var(--incorrect) 70%, var(--paper)),
+    var(--shadow-rest);
+}
+
+.danger:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--incorrect) 84%, var(--ink));
+}
+
+/* ---------- Press ---------- */
+
+.button:not(:disabled):active {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-inset);
+}
+
+.ghost:not(:disabled):active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* ---------- Disabled ---------- */
+
+.button:disabled {
+  background-color: var(--paper-warm);
+  border-color: var(--paper-edge);
+  color: var(--ink-faint);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.ghost:disabled {
+  background-color: transparent;
+  border-color: transparent;
+}

@@ -1,0 +1,465 @@
+/* =====================================================================
+   SONG QUEST — GLOBAL DESIGN SYSTEM
+   Vintage scientific field guide × Wingspan board-game tactility.
+
+   This file is a CONTRACT. Every component styles itself exclusively
+   through the custom properties declared here. Do not hard-code a hex
+   value in a component stylesheet.
+   ===================================================================== */
+
+:root {
+  /* ---------- Paper & ground ----------
+     Neutral, not parchment. The greys carry no hue at all: a warm ground tints
+     every photograph laid on it and reads as a filter over the whole product.
+     Character comes from the accents below and from the typography, which is
+     where it survives contact with a real bird photograph. */
+  --paper: #ffffff;           /* primary background                    */
+  --paper-warm: #f7f7f8;      /* recessed panels, table stripes        */
+  --paper-deep: #eeeef1;      /* pressed / inset surfaces              */
+  --paper-edge: #e3e3e7;      /* hairline rules, card borders          */
+  --paper-shadow: #cfcfd5;    /* the darker edge of a stacked card     */
+  --card: #ffffff;            /* raised species card face              */
+
+  /* ---------- Ink ---------- */
+  --ink: #1a1a1c;             /* body copy                             */
+  --ink-soft: #4a4a4e;        /* secondary copy, captions              */
+  --ink-faint: #86868c;       /* metadata, disabled, placeholder       */
+  --ink-ghost: #b7b7be;       /* hairline dividers over paper          */
+
+  /* ---------- Accents ---------- */
+  --sage: #a8bca1;            /* pastel sage — primary accent          */
+  --sage-deep: #6d8a68;       /* sage for text / active states         */
+  --sage-wash: #e8efe4;       /* sage at panel-fill strength           */
+
+  --clay: #c9a189;            /* muted clay / terracotta               */
+  --clay-deep: #a06c4c;       /* clay for text / emphasis              */
+  --clay-wash: #f4e8df;
+
+  --slate: #6a8296;           /* deep slate blue                       */
+  --slate-deep: #3f5567;      /* slate for text / headers              */
+  --slate-wash: #e4ebf0;
+
+  --burgundy: #7a3b4a;        /* scientific emphasis, binomials        */
+  --brass: #b99a5b;           /* avatar frames, seals, rank flourishes */
+  --brass-deep: #8d7239;
+
+  /* ---------- Semantic ---------- */
+  --correct: #6d8a68;         /* = sage-deep                           */
+  --correct-wash: #e8efe4;
+  --incorrect: #a05a5a;
+  --incorrect-wash: #f3e5e5;
+  --warning: #b08442;
+  --focus-ring: #6a8296;      /* = slate                               */
+
+  /* ---------- Range-map palette (Cornell/Macaulay-inspired) ---------- */
+  --map-resident: #e6d28a;    /* soft yellow — year-round               */
+  --map-breeding: #e8a28b;    /* salmon / terracotta — summer           */
+  --map-wintering: #a8c6dc;   /* pastel sky blue — winter               */
+  --map-migration: #c6b4d2;   /* soft lilac — passage                   */
+  /* Region-selection fills. Seven, because south-eastern Europe divides the
+     continent into seven; each must stay legible against the desaturated
+     basemap and distinct from its neighbours at 55% opacity. */
+  --region-a: #a8c6dc;   /* sky        */
+  --region-b: #c7d9b4;   /* sage       */
+  --region-c: #e8bfa0;   /* clay       */
+  --region-d: #d9c3d8;   /* lilac      */
+  --region-e: #e6d28a;   /* straw      */
+  --region-f: #b9d4cd;   /* verdigris  */
+  --region-g: #e5b3ae;   /* rose       */
+
+  --map-density-low: #d8e2d4;
+  --map-density-high: #4d6b57;
+  --map-graticule: #cfc6b6;
+  --map-water: #eef1f4;
+  --map-land: #f4f4f6;
+
+  /* ---------- Typography ---------- */
+  --font-display: 'Instrument Serif', 'Times New Roman', Times, Georgia, serif;
+  --font-body: 'Times New Roman', Times, Georgia, serif;
+  --font-mono: 'SFMono-Regular', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  --step--2: 0.75rem;    /* 12px — micro-labels, licence lines   */
+  --step--1: 0.875rem;   /* 14px — captions, table cells         */
+  --step-0: 1rem;        /* 16px — body                          */
+  --step-1: 1.25rem;     /* 20px — lead paragraphs               */
+  --step-2: 1.625rem;    /* 26px — card titles                   */
+  --step-3: 2.25rem;     /* 36px — section headers               */
+  --step-4: 3.25rem;     /* 52px — game title                    */
+  --step-5: 4.5rem;      /* 72px — splash                        */
+
+  --leading-tight: 1.15;
+  --leading-normal: 1.55;
+  --leading-loose: 1.75;
+
+  /* Letterspacing for the small-caps field-guide labels. */
+  --tracking-label: 0.18em;
+  --tracking-wide: 0.06em;
+
+  /* ---------- Space (8px base, 4px half-steps) ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+
+  /* ---------- Form ---------- */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 6px;
+  --radius-pill: 999px;
+
+  --rule-hair: 1px;
+  --rule-thick: 2px;
+
+  /* Layered, low-contrast shadows — printed card on a desk, not a UI popover. */
+  /* Neutral shadow ink. A brown shadow on a white ground is the single most
+     legible source of a yellow cast, because it sits under every raised
+     surface on the page at once. */
+  --shadow-rest: 0 1px 2px rgba(20, 20, 28, 0.05),
+                 0 2px 6px rgba(20, 20, 28, 0.04);
+  --shadow-raised: 0 2px 4px rgba(20, 20, 28, 0.06),
+                   0 8px 20px rgba(20, 20, 28, 0.07);
+  --shadow-lifted: 0 4px 10px rgba(20, 20, 28, 0.08),
+                   0 18px 40px rgba(20, 20, 28, 0.09);
+  --shadow-inset: inset 0 1px 3px rgba(20, 20, 28, 0.09);
+
+  /* ---------- Motion — slow, settled, never bouncy ---------- */
+  --ease-paper: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-settle: cubic-bezier(0.16, 0.84, 0.44, 1);
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 620ms;
+  --dur-reveal: 900ms;
+
+  /* ---------- Layout ---------- */
+  --measure: 62ch;            /* comfortable reading width            */
+  /* The play surface is a stack of plates, not a dashboard. Past ~900px the
+     column stops reading as a page in a guide and starts reading as an
+     application window, and the map and species card both float in space. */
+  --shell-max: 880px;
+  --card-max: 460px;
+  --z-map: 10;
+  --z-sticky: 40;
+  --z-overlay: 80;
+  --z-toast: 120;
+}
+
+/* =====================================================================
+   Reset
+   ===================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--paper);
+  background-image: var(--texture-fibre);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+picture,
+svg,
+canvas,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+p,
+li,
+figcaption {
+  overflow-wrap: break-word;
+}
+
+/* =====================================================================
+   Paper texture
+   Two stacked SVG noise fields kept as custom properties so any surface
+   can opt in with `background-image: var(--texture-fibre)`.
+   ===================================================================== */
+
+:root {
+  /* One greyscale grain, and a faint one. The second layer used to be a brown
+     speckle — a literal sepia wash over every surface — which is what made the
+     whole page read as tinted. `saturate 0` keeps this one strictly neutral. */
+  --texture-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23f)' opacity='0.02'/%3E%3C/svg%3E");
+}
+
+/* =====================================================================
+   Typography primitives
+   Instrument Serif for anything that names or titles;
+   Times New Roman for anything that explains.
+   ===================================================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: var(--leading-tight);
+  letter-spacing: 0.005em;
+  color: var(--ink);
+}
+
+h1 { font-size: var(--step-4); }
+h2 { font-size: var(--step-3); }
+h3 { font-size: var(--step-2); }
+h4 { font-size: var(--step-1); }
+
+/* Binomial nomenclature. Always italic, always the burgundy ink. */
+.binomial,
+.scientific {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--burgundy);
+  letter-spacing: 0.01em;
+}
+
+/* The engraved small-caps label above every field-guide section. */
+.fieldLabel {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  line-height: 1;
+}
+
+.prose {
+  max-width: var(--measure);
+  line-height: var(--leading-loose);
+  color: var(--ink-soft);
+}
+
+.prose + .prose {
+  margin-top: var(--space-4);
+}
+
+/* A word the game has censored out of the description. */
+.redacted {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  background: var(--ink);
+  color: transparent;
+  border-radius: var(--radius-sm);
+  user-select: none;
+  letter-spacing: var(--tracking-wide);
+}
+
+a {
+  color: var(--slate-deep);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--ink-ghost);
+  transition: color var(--dur-fast) var(--ease-paper);
+}
+
+a:hover {
+  color: var(--clay-deep);
+}
+
+hr,
+.rule {
+  height: 0;
+  border: 0;
+  border-top: var(--rule-hair) solid var(--paper-edge);
+}
+
+/* A doubled rule, the way a printed plate separates plate from caption. */
+.ruleDouble {
+  height: 3px;
+  border: 0;
+  border-top: var(--rule-hair) solid var(--paper-edge);
+  border-bottom: var(--rule-hair) solid var(--paper-edge);
+}
+
+/* =====================================================================
+   Focus — visible, on-theme, never removed
+   ===================================================================== */
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+::selection {
+  background: var(--sage-wash);
+  color: var(--ink);
+}
+
+/* Screen-reader-only, for labels the design carries visually. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =====================================================================
+   Shared animation vocabulary
+   Every reveal in the game uses one of these. Slow fades only.
+   ===================================================================== */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* The hint-unlock reveal: paper settling into place. */
+@keyframes settleIn {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.985); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+
+/* Species card turning face-up at the end of a round. */
+@keyframes plateReveal {
+  from { opacity: 0; transform: translateY(18px) rotateX(6deg); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+
+.animate-fadeUp   { animation: fadeUp var(--dur-slow) var(--ease-settle) both; }
+.animate-fadeIn   { animation: fadeIn var(--dur-slow) var(--ease-paper) both; }
+.animate-settleIn { animation: settleIn var(--dur-reveal) var(--ease-settle) both; }
+
+/* =====================================================================
+   Leaflet overrides
+   Strips the default chrome so the map reads as a printed distribution
+   plate rather than a web map. RangeMap.module.css builds on this.
+   ===================================================================== */
+
+.leaflet-container {
+  background: var(--map-water) !important;
+  font-family: var(--font-body) !important;
+  outline: none;
+}
+
+/* Desaturate + warm the base tiles toward the parchment ground. */
+.leaflet-tile-pane {
+  /* No sepia. The basemap is desaturated so the pastel region and density
+     overlays read against it, not to make it look aged. */
+  filter: saturate(0.3) brightness(1.04) contrast(0.92);
+}
+
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: var(--ink-faint) !important;
+  font-family: var(--font-body) !important;
+  font-size: 10px !important;
+  padding: 2px 6px !important;
+  border-top-left-radius: var(--radius-sm);
+}
+
+.leaflet-control-attribution a {
+  color: var(--ink-faint) !important;
+}
+
+.leaflet-control-zoom a {
+  background: var(--paper) !important;
+  color: var(--ink-soft) !important;
+  border: var(--rule-hair) solid var(--paper-edge) !important;
+  font-family: var(--font-display) !important;
+  font-weight: 400 !important;
+  transition: background var(--dur-fast) var(--ease-paper);
+}
+
+.leaflet-control-zoom a:hover {
+  background: var(--paper-warm) !important;
+  color: var(--ink) !important;
+}
+
+.leaflet-bar {
+  box-shadow: var(--shadow-rest) !important;
+  border: none !important;
+}
+
+/* =====================================================================
+   Reduced motion
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Opt-in class mirroring the persisted `settings.reducedMotion` flag. */
+:root[data-reduced-motion='true'] *,
+:root[data-reduced-motion='true'] *::before,
+:root[data-reduced-motion='true'] *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* =====================================================================
+   Print — the field guide, actually printed
+   ===================================================================== */
+
+@media print {
+  body {
+    background: #fff;
+    background-image: none;
+  }
+
+  .noPrint {
+    display: none !important;
+  }
+}

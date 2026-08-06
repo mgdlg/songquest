@@ -1,0 +1,195 @@
+/* `plateReveal` is redeclared here because CSS Modules scopes animation names
+   per file — a reference to the globals.css keyframes of the same name would be
+   rewritten and resolve to nothing. Keep this definition in step with globals. */
+@keyframes plateReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px) rotateX(6deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  max-width: var(--card-max);
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-5) var(--space-6);
+  background-color: var(--card);
+  background-image: var(--texture-fibre);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lifted);
+  color: var(--ink);
+  transform-origin: top center;
+  animation: plateReveal var(--dur-reveal) var(--ease-settle) both;
+}
+
+/* The second rule, one space-unit (4px) inside the border. The doubled edge is
+   what makes this read as a printed plate rather than a div. */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: var(--space-1);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+}
+
+/* Stamped into the top corner, overlapping the plate the way a wax seal
+   overlaps the sheet it closes. */
+.seal {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 1;
+  line-height: 0;
+}
+
+.sealMark {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1;
+  letter-spacing: var(--tracking-wide);
+}
+
+.plate {
+  position: relative;
+  margin-bottom: var(--space-5);
+}
+
+.header {
+  position: relative;
+}
+
+.eyebrow {
+  margin-bottom: var(--space-3);
+}
+
+.commonName {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: var(--leading-tight);
+  color: var(--ink);
+}
+
+/* The caption rule under an engraving: hairline, brass, full measure. */
+.brassRule {
+  height: 0;
+  margin: var(--space-3) 0;
+  border: 0;
+  border-top: var(--rule-hair) solid var(--brass);
+}
+
+.binomial {
+  font-size: var(--step-1);
+  line-height: var(--leading-tight);
+}
+
+.status {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.section {
+  margin-top: var(--space-6);
+}
+
+/* An engraved label with a rule running out to the margin. */
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.sectionLabel::after {
+  content: '';
+  flex: 1 1 auto;
+  height: 0;
+  border-top: var(--rule-hair) solid var(--paper-edge);
+}
+
+.soundboard {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.clip {
+  margin: 0;
+}
+
+.absent {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--ink-faint);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+/* Reserve the line so the confirmation never nudges the plate. */
+.notice {
+  min-height: calc(var(--step--2) * var(--leading-normal));
+  margin-top: var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  color: var(--sage-deep);
+}
+
+/* Shown only when the clipboard is unavailable, so the grid can still be
+   selected and copied by hand. */
+.shareFallback {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  background-color: var(--paper-warm);
+  border: var(--rule-hair) solid var(--paper-edge);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  line-height: var(--leading-normal);
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  user-select: all;
+}
+
+.attribution {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: var(--rule-hair) solid var(--paper-edge);
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  line-height: var(--leading-normal);
+  color: var(--ink-faint);
+}
+
+.creditList {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.creditKind {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-soft);
+}
