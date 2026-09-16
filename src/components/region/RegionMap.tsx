@@ -52,6 +52,9 @@ export function RegionMap({ options, frame, selected, onSelect, className }: Reg
     if (!containerRef.current) return
 
     let cancelled = false
+    // Captured once: the Map object behind the ref is mutated but never
+    // replaced, and cleanup must clear the same instance this effect used.
+    const layers = layersRef.current
 
     void (async () => {
       const mod = (await import('leaflet')) as unknown as typeof import('leaflet') & {
@@ -89,7 +92,7 @@ export function RegionMap({ options, frame, selected, onSelect, className }: Reg
 
     return () => {
       cancelled = true
-      layersRef.current.clear()
+      layers.clear()
       mapRef.current?.remove()
       mapRef.current = null
     }

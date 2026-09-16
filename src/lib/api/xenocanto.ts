@@ -1,25 +1,19 @@
 /**
  * XENO-CANTO client — the source of every sound in the game.
  *
- * Server-only. The browser must never call xeno-canto.org directly: there is no
- * CORS header on the audio, and the API key would be public.
+ * Build-time only, run by scripts/generate-dossiers.ts. The browser never
+ * calls the Xeno-canto API: the key would be public on a static site. It does
+ * play the recordings directly, which the catalogue permits cross-origin.
  */
 
 import type { AudioCredit, ClipKind } from '../../types/domain';
-import {
-  parseXcResponse,
-  proxiedAudioUrl,
-  type XcRecording,
-} from '../../types/xenocanto';
+import { parseXcResponse, type XcRecording } from '../../types/xenocanto';
 import { cached, fetchJson, TTL } from '../cache';
 
 export interface ClipQuery {
   scientificName: string;
   kind: ClipKind;
 }
-
-/** Re-exported so the dossier builder does not need a second import path. */
-export { proxiedAudioUrl };
 
 const V3_ENDPOINT = 'https://xeno-canto.org/api/3/recordings';
 
@@ -58,14 +52,18 @@ function noteMissingKey(): void {
 /* ------------------------------------------------------------------ */
 
 /**
- * The alarm chain exists because "alarm" is a sparsely-tagged type. Falling
- * through to a territorial call and then to a plain call means a clip exists
- * wherever one plausibly can, which matters more than tag purity for hint 1.
+ * "Alarm" accepts a genuine alarm or a territorial call, and nothing else.
+ *
+ * It used to fall through to a plain call so that every bird had three clips.
+ * In practice that relabelled an ordinary call as "Alarm · Territorial" — and
+ * because it took the top-ranked call, usually the very recording already
+ * playing as the call clip. A missing voice is now simply omitted; the board
+ * renders whichever voices a species genuinely has.
  */
 const TYPE_CLAUSES: Readonly<Record<ClipKind, readonly string[]>> = {
   song: ['type:song'],
   call: ['type:call'],
-  alarm: ['type:alarm', 'type:"territorial call"', 'type:call'],
+  alarm: ['type:alarm', 'type:"territorial call"'],
 };
 
 /** Double quotes and backslashes would break out of the `sp:"…"` clause. */
@@ -84,17 +82,44 @@ function sanitiseName(scientificName: string): string {
  */
 function buildQuery(scientificName: string, typeClause: string, strictQuality: boolean): string {
   const quality = strictQuality ? ' q:">C"' : '';
-  const [genus = '', ...rest] = scientificName.split(' ').filter((part) => part.length > 0);
+  const alias = XC_NAME_ALIASES[scientificName];
+  const catalogueName = alias?.name ?? scientificName;
+  const [genus = '', ...rest] = catalogueName.split(' ').filter((part) => part.length > 0);
   const epithet = rest.join(' ');
   const name = epithet.length > 0 ? `gen:"${genus}" sp:"${epithet}"` : `gen:"${genus}"`;
+  const extra = alias?.extra ? ` ${alias.extra}` : '';
 
   // No `lic:` clause. The field matches one exact code, so filtering upstream
   // would mean issuing a query per acceptable licence, and `lic:"BY"` silently
   // matched nothing at all — plain CC BY barely exists in this catalogue.
   // `permissive` is re-checked on every parsed record instead, which is where
   // the licence rule belongs anyway: one place, applied to what we actually got.
-  return `${name} ${typeClause}${quality}`;
+  return `${name} ${typeClause}${quality}${extra}`;
 }
+
+/**
+ * Where Xeno-canto files a species under a different name than the roster.
+ *
+ * The roster follows current AOS/IOC taxonomy; the catalogue lags or diverges,
+ * and a query under the roster's genus returns nothing at all. Without these,
+ * some of the most-recorded birds in North America — Cooper's Hawk, Hairy
+ * Woodpecker — were dropped as having no audio. Keyed by the roster binomial;
+ * iNaturalist and GBIF still receive the roster name.
+ *
+ * American Goshawk needs more than a rename. AOS split it from the Eurasian bird
+ * in 2023, but Xeno-canto still lumps both under `Accipiter gentilis`, so the
+ * query is confined to the Americas rather than borrowing European recordings.
+ *
+ * Checked against the live catalogue on 2026-09-16.
+ */
+const XC_NAME_ALIASES: Readonly<Record<string, { name: string; extra?: string }>> = {
+  'Astur cooperii': { name: 'Accipiter cooperii' },
+  'Astur atricapillus': { name: 'Accipiter gentilis', extra: 'area:america' },
+  'Dryobates villosus': { name: 'Leuconotopicus villosus' },
+  'Dryobates borealis': { name: 'Leuconotopicus borealis' },
+  'Dryobates albolarvatus': { name: 'Leuconotopicus albolarvatus' },
+  'Amphispiza quinquestriata': { name: 'Amphispizopsis quinquestriata' },
+};
 
 /* ------------------------------------------------------------------ */
 /* Transport                                                           */
@@ -192,11 +217,19 @@ function compareRecordings(a: XcRecording, b: XcRecording): number {
 /**
  * Best permissively-licensed recording for a species and vocalisation type.
  *
- * The `lic:"BY"` clause is sent upstream, but the survivors are re-checked
- * against the parsed `lic` field before anything is returned. Upstream filters
- * drift; a licence breach in a shipped product does not get to depend on that.
+ * Licence is checked on every parsed record rather than trusted to the query:
+ * upstream filters drift, and a licence breach in a shipped product should not
+ * depend on one behaving.
+ *
+ * `exclude` holds catalogue ids already chosen for another voice. Xeno-canto
+ * tags one recording with several types — "call, song" is common — so the
+ * song and call queries can each rank the same file first. Excluding it makes
+ * the next query fall to a genuinely different recording, or to none.
  */
-export async function fetchClip(q: ClipQuery): Promise<XcRecording | null> {
+export async function fetchClip(
+  q: ClipQuery,
+  exclude: ReadonlySet<string> = new Set(),
+): Promise<XcRecording | null> {
   const name = sanitiseName(q.scientificName);
   if (name === '') return null;
 
@@ -209,7 +242,7 @@ export async function fetchClip(q: ClipQuery): Promise<XcRecording | null> {
       const recordings = await requestRecordings(buildQuery(name, clause, strictQuality));
 
       const usable = recordings.filter(
-        (rec) => rec.license.permissive && rec.fileUrl !== '',
+        (rec) => rec.license.permissive && rec.fileUrl !== '' && !exclude.has(rec.id),
       );
       if (usable.length === 0) continue;
 
@@ -223,39 +256,35 @@ export async function fetchClip(q: ClipQuery): Promise<XcRecording | null> {
   return null;
 }
 
+/** Voices in the order they claim a recording: song first, then call, then alarm. */
+const CLIP_PRIORITY: readonly ClipKind[] = ['song', 'call', 'alarm'];
+
 /**
- * All three vocalisation types at once. A failure or a miss on any one kind
- * degrades to `null` for that kind only — hint stages handle absence, and only
- * a missing *song* is fatal (which is the dossier builder's judgement, not
- * this module's).
+ * One recording per voice, never the same recording twice.
+ *
+ * The kinds are chosen in sequence rather than in parallel so each can exclude
+ * what the previous ones took. A voice with no distinct recording left comes
+ * back `null` and is simply not shown. A failure on one kind degrades that kind
+ * only; whether a species with no audio at all is playable is the dossier
+ * builder's decision, not this module's.
  */
-export async function fetchClipSet(
+export async function fetchDistinctClips(
   scientificName: string,
 ): Promise<Record<ClipKind, XcRecording | null>> {
-  const [song, call, alarm] = await Promise.allSettled([
-    fetchClip({ scientificName, kind: 'song' }),
-    fetchClip({ scientificName, kind: 'call' }),
-    fetchClip({ scientificName, kind: 'alarm' }),
-  ]);
+  const chosen: Record<ClipKind, XcRecording | null> = { song: null, call: null, alarm: null };
+  const taken = new Set<string>();
 
-  return {
-    song: settledClip(song, 'song', scientificName),
-    call: settledClip(call, 'call', scientificName),
-    alarm: settledClip(alarm, 'alarm', scientificName),
-  };
-}
+  for (const kind of CLIP_PRIORITY) {
+    try {
+      const rec = await fetchClip({ scientificName, kind }, taken);
+      chosen[kind] = rec;
+      if (rec) taken.add(rec.id);
+    } catch (err) {
+      console.warn(`[xeno-canto] ${kind} clip for ${scientificName} failed: ${String(err)}`);
+    }
+  }
 
-function settledClip(
-  outcome: PromiseSettledResult<XcRecording | null> | undefined,
-  kind: ClipKind,
-  scientificName: string,
-): XcRecording | null {
-  if (outcome === undefined) return null;
-  if (outcome.status === 'fulfilled') return outcome.value;
-  console.warn(
-    `[xeno-canto] ${kind} clip for ${scientificName} failed: ${String(outcome.reason)}`,
-  );
-  return null;
+  return chosen;
 }
 
 /**

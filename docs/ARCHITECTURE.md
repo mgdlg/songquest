@@ -1,5 +1,13 @@
 # SONG QUEST — Architecture & Build Contract
 
+> **Historical document.** This is the original contract the first version was built
+> against, and much of it no longer describes the code. The biggest change: Song Quest
+> is now a **static site with no server**. The route handlers in §3.3 (`/api/species`,
+> `/api/daily`, `/api/search`, `/api/audio`) are gone; bird dossiers are pre-generated
+> by `scripts/generate-dossiers.ts`, the daily draw and search run in the browser, and
+> audio plays directly from Xeno-canto. The licence policy has also changed — CC BY-NC
+> recordings are accepted, NoDerivatives refused. See the README for how it works now.
+
 > A bird-song identification game for people who already know their *Empidonax* from
 > their *Contopus*. Vintage field-guide typography, Wingspan-grade tactility,
 > Creative-Commons data end to end.

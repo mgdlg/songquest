@@ -24,7 +24,7 @@ export const MODES: Readonly<Record<GameMode, ModeConfig>> = {
     id: 'daily-standard',
     label: 'Daily Round',
     blurb:
-      'One bird a day, the same for every ear on earth. Three recordings, four attempts, and no clock — sit with it as long as the coffee holds out.',
+      'One bird a day, the same for every ear on earth. Every recording we have, four attempts, and no clock — sit with it as long as the coffee holds out.',
     daily: true,
     hardcore: false,
     clipsOnFirstAttempt: 3,

@@ -23,6 +23,7 @@
 
 import { getRegion, isWithin, type RegionId } from '@/lib/regions';
 import { COMMONNESS_RANK, beginnerRank } from './generated/beginner-pools';
+import { PLAYABLE_IDS } from './generated/playable';
 import {
   CURATED_SPECIES,
   dedupeById,
@@ -482,10 +483,16 @@ export function speciesForRegion(
   region: RegionId,
   options: { beginner?: boolean } = {},
 ): SpeciesSeed[] {
+  // Only birds with a pre-built dossier can be drawn. On a static host there
+  // is no server to assemble one on demand, so a species the generator could
+  // not find a recording for would otherwise be picked and fail to load.
+  const drawable = (seed: SpeciesSeed): boolean =>
+    PLAYABLE_IDS.has(seed.id) && occursIn(seed, region);
+
   const source = pool === 'master' ? MASTER_SPECIES : CURATED_SPECIES;
-  let matched = source.filter((seed) => occursIn(seed, region));
+  let matched = source.filter(drawable);
   if (matched.length === 0 && pool === 'curated') {
-    matched = MASTER_SPECIES.filter((seed) => occursIn(seed, region));
+    matched = MASTER_SPECIES.filter(drawable);
   }
 
   if (!options.beginner) return matched;

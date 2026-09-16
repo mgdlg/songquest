@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { ModeConfig } from '@/types/domain'
-import { getMode } from '@/lib/modes'
+import { MODE_ORDER, getMode } from '@/lib/modes'
 import { GameProvider } from '@/state/GameContext'
 import { GameBoard } from '@/components/game/GameBoard'
 import styles from './page.module.css'
@@ -11,6 +11,17 @@ import styles from './page.module.css'
 interface PlayPageProps {
   params: Promise<{ mode: string }>
 }
+
+/**
+ * A static export has to know every page at build time, so the four modes are
+ * enumerated here and written out as four HTML files. Any other `/play/…` path
+ * does not exist on disk and the host serves the 404 page.
+ */
+export function generateStaticParams(): { mode: string }[] {
+  return MODE_ORDER.map((mode) => ({ mode }))
+}
+
+export const dynamicParams = false
 
 export async function generateMetadata({ params }: PlayPageProps): Promise<Metadata> {
   const { mode } = await params
@@ -30,7 +41,7 @@ export async function generateMetadata({ params }: PlayPageProps): Promise<Metad
 }
 
 function summarise(config: ModeConfig): string {
-  const clips = config.clipsOnFirstAttempt === 1 ? 'One clip' : 'Three clips'
+  const clips = config.clipsOnFirstAttempt === 1 ? 'One clip' : 'Every clip'
   const clock =
     config.secondsPerAttempt === null
       ? 'untimed'
@@ -57,8 +68,10 @@ export default async function PlayPage({ params }: PlayPageProps) {
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.topRow}>
-          <Link href="/" className={styles.back}>
-            <span aria-hidden="true">&larr;</span> All modes
+          {/* The modes live on /solo since the region picker took over the
+              front page; linking to "/" would drop the player at the map. */}
+          <Link href="/solo" className={styles.back}>
+            <span aria-hidden="true">&larr;</span> Modes
           </Link>
           <Link href="/stats" className={styles.back}>
             Your record

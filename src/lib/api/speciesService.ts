@@ -5,13 +5,13 @@
  * Xeno-canto (song / call / alarm), and GBIF (occurrence-density tile key)
  * and folds the results into a single `SpeciesDossier`.
  *
- * Degradation policy, per ARCHITECTURE §3.4:
- *   - a missing photo, alarm clip, call clip, or range tile is survivable;
- *   - a missing SONG clip is fatal, because there is no game without audio.
+ * Degradation policy:
+ *   - a missing photo, any one missing voice, or a missing range tile is
+ *     survivable;
+ *   - no recording of any kind is fatal, because there is no game without audio.
  *
- * Runs only on the server. Every browser-facing audio URL is rewritten through
- * `/api/audio` so the client never talks to Xeno-canto directly (CORS, and one
- * cache to rule them).
+ * Build-time only. scripts/generate-dossiers.ts runs this once per species and
+ * writes the result to static JSON, which is all the deployed site ever reads.
  */
 
 import type { AudioCredit, SpeciesDossier } from '../../types/domain';
@@ -19,7 +19,7 @@ import type { InatTaxon } from '../../types/inaturalist';
 import type { XcRecording } from '../../types/xenocanto';
 import { cached, TTL } from '../cache';
 import { redactDescription } from '../game/redact';
-import { fetchClip, toAudioCredit } from './xenocanto';
+import { fetchDistinctClips, toAudioCredit } from './xenocanto';
 
 /* ------------------------------------------------------------------ */
 /* Failure model                                                       */
@@ -241,18 +241,21 @@ function formatLicenseCode(code: string): string {
 }
 
 /* ------------------------------------------------------------------ */
-/* Audio proxying                                                      */
+/* Audio URLs                                                          */
 /* ------------------------------------------------------------------ */
 
 const XC_HOST = 'xeno-canto.org';
 
 /**
- * Rewrites a Xeno-canto file URL through `/api/audio`. Anything that is not an
- * https Xeno-canto URL is dropped here rather than handed to the client, so the
- * proxy's allow-list is never the first line of defence. Protocol-relative
- * URLs (`//xeno-canto.org/...`) are still common in the v2 payload.
+ * The URL a browser should play, validated to https on Xeno-canto's own hosts.
+ *
+ * Played directly, not proxied. The game is a static site with no server to
+ * proxy through, and none is needed: Xeno-canto serves recordings with
+ * `Access-Control-Allow-Origin: *` and accepts requests from other origins
+ * (verified 2026-09-16). The host check stays — anything else in a catalogue
+ * record is dropped here rather than shipped into a dossier.
  */
-function proxiedAudioUrl(raw: string): string {
+function playableAudioUrl(raw: string): string {
   const candidate = raw.startsWith('//') ? `https:${raw}` : raw;
   let parsed: URL;
   try {
@@ -265,7 +268,7 @@ function proxiedAudioUrl(raw: string): string {
   const host = parsed.hostname.toLowerCase();
   if (host !== XC_HOST && !host.endsWith(`.${XC_HOST}`)) return '';
 
-  return `/api/audio?src=${encodeURIComponent(parsed.toString())}`;
+  return parsed.toString();
 }
 
 /* ------------------------------------------------------------------ */
@@ -332,8 +335,13 @@ export async function resolveTaxon(scientificName: string): Promise<InatTaxon | 
   if (!name) return null;
 
   return cached(`inat:name:${name.toLowerCase()}`, TTL.SPECIES, async () => {
+    // `/taxa/autocomplete`, not `/taxa`. The general search matches common names
+    // in every locale and ranks them above the scientific name: "Bubo bubo"
+    // returned 95 hits led by Hungarian names containing "búbos", and the
+    // Eurasian Eagle-Owl was not on the first page at all. Autocomplete ranks
+    // the scientific name first.
     const url =
-      `${INAT_BASE}/taxa?per_page=10&is_active=true&rank=species&q=` +
+      `${INAT_BASE}/taxa/autocomplete?per_page=10&is_active=true&rank=species&locale=en&q=` +
       encodeURIComponent(name);
     const payload = await fetchJson(url, 'iNaturalist');
     if (!isRecord(payload)) return null;
@@ -344,7 +352,14 @@ export async function resolveTaxon(scientificName: string): Promise<InatTaxon | 
     const wanted = name.toLowerCase();
     for (const entry of results) {
       if (!isRecord(entry)) continue;
-      if (text(entry['name']).toLowerCase() !== wanted) continue;
+      // A hit is either the name itself or a species whose accepted name has
+      // moved on and lists ours as a synonym. iNaturalist reports the latter as
+      // `matched_term` — searching "Charadrius nivosus" returns the Snowy Plover
+      // as `Anarhynchus nivosus`. Rejecting synonyms dropped several species
+      // whose genus has been revised since the roster was written.
+      const exact = text(entry['name']).toLowerCase() === wanted;
+      const synonym = text(entry['matched_term']).toLowerCase() === wanted;
+      if (!exact && !synonym) continue;
 
       const hit = entry as unknown as InatTaxon;
       const id = inatView(hit).id;
@@ -539,7 +554,7 @@ interface ClipOutcome {
 function toClipOutcome(rec: XcRecording | null): ClipOutcome {
   if (!rec) return { url: '', credit: null, center: null };
 
-  const url = proxiedAudioUrl(rec.fileUrl);
+  const url = playableAudioUrl(rec.fileUrl);
   if (!url) return { url: '', credit: null, center: null };
 
   let credit: AudioCredit | null = null;
@@ -559,6 +574,30 @@ function toClipOutcome(rec: XcRecording | null): ClipOutcome {
       : null;
 
   return { url, credit, center };
+}
+
+/**
+ * Just the audio half of a dossier, for refreshing recordings on data that is
+ * otherwise current. Re-querying iNaturalist for every species to change one
+ * field would spend hundreds of requests against a service that hard-limits
+ * clients to 100 a minute; Xeno-canto alone is the only source that changed.
+ *
+ * Returns null when the species no longer has any usable recording.
+ */
+export async function rebuildAudio(
+  scientificName: string,
+): Promise<Pick<SpeciesDossier, 'audioClips' | 'audioCredits'> | null> {
+  const clips = await fetchDistinctClips(scientificName);
+  const song = toClipOutcome(clips.song);
+  const call = toClipOutcome(clips.call);
+  const alarm = toClipOutcome(clips.alarm);
+
+  if (!song.url && !call.url && !alarm.url) return null;
+
+  return {
+    audioClips: { songUrl: song.url, callUrl: call.url, alarmUrl: alarm.url },
+    audioCredits: { song: song.credit, call: call.credit, alarm: alarm.credit },
+  };
 }
 
 async function assembleDossier(input: {
@@ -592,18 +631,16 @@ async function assembleDossier(input: {
     );
   }
 
-  const [taxonSettled, songSettled, callSettled, alarmSettled, gbifSettled] =
-    await Promise.allSettled([
-      taxonPromise,
-      fetchClip({ scientificName, kind: 'song' }),
-      fetchClip({ scientificName, kind: 'call' }),
-      fetchClip({ scientificName, kind: 'alarm' }),
-      fetchGbifTaxonKey(scientificName),
-    ]);
+  const [taxonSettled, clipsSettled, gbifSettled] = await Promise.allSettled([
+    taxonPromise,
+    fetchDistinctClips(scientificName),
+    fetchGbifTaxonKey(scientificName),
+  ]);
 
-  const song = toClipOutcome(settled(songSettled, null));
-  const call = toClipOutcome(settled(callSettled, null));
-  const alarm = toClipOutcome(settled(alarmSettled, null));
+  const clips = settled(clipsSettled, { song: null, call: null, alarm: null });
+  const song = toClipOutcome(clips.song);
+  const call = toClipOutcome(clips.call);
+  const alarm = toClipOutcome(clips.alarm);
 
   // One recording is enough to play. Requiring a *song* specifically excluded
   // every bird that does not really sing — raptors, herons, most shorebirds,

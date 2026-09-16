@@ -4,11 +4,13 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent, JSX, KeyboardEvent } from 'react';
 import type { SpeciesOption } from '@/types/domain';
 import { Button } from '@/components/ui';
+import { searchSpecies } from '@/data/master-list';
 import styles from './GuessInput.module.css';
 
 /** Long enough that a two-letter prefix doesn't drag the whole master list. */
 const MIN_QUERY = 2;
 const DEBOUNCE_MS = 140;
+const SUGGESTION_LIMIT = 12;
 
 function isSpeciesOption(value: unknown): value is SpeciesOption {
   if (typeof value !== 'object' || value === null) return false;
@@ -54,43 +56,31 @@ export function GuessInput(props: {
   const optionId = (index: number) => `${listId}-opt-${index}`;
 
   const runSearch = useCallback(
-    async (query: string) => {
-      // A superseded request must never land after its successor: abort first,
-      // then own the controller for the duration of this call.
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-      setBusy(true);
+    (query: string) => {
+      // Searched in the browser against the bundled roster. The site is static,
+      // so there is no search endpoint — and none is needed: the roster is
+      // already in the bundle for pool selection, and filtering a few hundred
+      // names is faster than any round trip would be.
+      //
+      // Deliberately the whole roster, not just birds with a dossier: a player
+      // may guess any species on the list, including one that could never be
+      // the answer, and the suggestion list must not quietly leak which birds
+      // are drawable.
+      const list: SpeciesOption[] = searchSpecies(query, pool, SUGGESTION_LIMIT)
+        .map((seed) => ({
+          id: seed.id,
+          commonName: seed.commonName,
+          scientificName: seed.scientificName,
+          family: seed.family,
+        }))
+        .filter(isSpeciesOption);
 
-      try {
-        const res = await fetch(
-          `/api/search?q=${encodeURIComponent(query)}&pool=${encodeURIComponent(pool)}`,
-          { signal: controller.signal, headers: { accept: 'application/json' } },
-        );
-        if (!res.ok) throw new Error(`Search failed with status ${res.status}`);
-
-        const payload: unknown = await res.json();
-        const list = Array.isArray(payload) ? payload.filter(isSpeciesOption) : [];
-
-        if (abortRef.current !== controller) return;
-        setOptions(list);
-        setHighlight(-1);
-        setOpen(list.length > 0);
-        setError(null);
-        setSearched(true);
-      } catch {
-        if (controller.signal.aborted) return;
-        setOptions([]);
-        setHighlight(-1);
-        setOpen(false);
-        setSearched(true);
-        setError('Suggestions are unavailable. Type a name and submit it anyway.');
-      } finally {
-        if (abortRef.current === controller) {
-          abortRef.current = null;
-          setBusy(false);
-        }
-      }
+      setOptions(list);
+      setHighlight(-1);
+      setOpen(list.length > 0);
+      setError(null);
+      setSearched(true);
+      setBusy(false);
     },
     [pool],
   );
@@ -114,7 +104,7 @@ export function GuessInput(props: {
     if (suppressed) return;
 
     const handle = setTimeout(() => {
-      void runSearch(query);
+      runSearch(query);
     }, DEBOUNCE_MS);
     return () => clearTimeout(handle);
   }, [value, runSearch]);

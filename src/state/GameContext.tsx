@@ -20,11 +20,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
 import type { JSX, ReactNode } from 'react';
 
-import { CURATED_SPECIES } from '@/data/curated-500';
-import { allSpecies, speciesForRegion } from '@/data/master-list';
+import { speciesForRegion } from '@/data/master-list';
 import { getRegion, type RegionId } from '@/lib/regions';
+import { dossierUrl } from '@/lib/paths';
 import { loadBeginner, loadRegion } from '@/lib/storage/region';
-import { todayKey } from '@/lib/game/daily';
+import { HARDCORE_SALT, pickDailyIndex, todayKey } from '@/lib/game/daily';
 import { isCorrectGuess } from '@/lib/game/matching';
 import { MODES, getMode } from '@/lib/modes';
 import { SEEN_LIMIT, loadState, saveState } from '@/lib/storage/persistence';
@@ -57,8 +57,6 @@ const TICK_MS = 1000;
 
 /** One retry, far enough apart to clear a dropped packet, close enough to feel instant. */
 const RETRY_DELAY_MS = 420;
-
-const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
  * Below this, a region is too thin to draw from and the round falls back to the
@@ -194,6 +192,40 @@ interface PoolSeed {
   inatTaxonId: number | null;
 }
 
+/** The whole-continent pool a thin region falls back to. */
+function withContinentFallback(
+  tier: 'curated' | 'master',
+  region: RegionId,
+  beginner: boolean,
+): readonly PoolSeed[] {
+  const regional = speciesForRegion(tier, region, { beginner });
+  if (regional.length >= MIN_REGION_POOL) return regional;
+  const continentRoot: RegionId = getRegion(region)?.continent === 'eu' ? 'europe' : 'north-america';
+  return speciesForRegion(tier, continentRoot, { beginner });
+}
+
+/**
+ * The bird of the day, computed in the browser.
+ *
+ * There is no server to ask: the draw is a pure function of the UTC date, the
+ * region, beginner mode and hardcore, over a pool that is identical in every
+ * copy of the site. So every player birding the same place gets the same bird
+ * without any shared state, and it rolls over at UTC midnight. The region joins
+ * the salt, so neighbouring regions do not all land on the same species.
+ */
+function pickDailySeed(
+  config: ModeConfig,
+  region: RegionId,
+  beginner: boolean,
+  dateKey: string,
+): PoolSeed | null {
+  const pool = withContinentFallback(config.hardcore ? 'master' : 'curated', region, beginner);
+  if (pool.length === 0) return null;
+
+  const salt = `${region}${beginner ? '|beginner' : ''}${config.hardcore ? `|${HARDCORE_SALT}` : ''}`;
+  return pool[pickDailyIndex(dateKey, pool.length, salt)] ?? null;
+}
+
 function pickPracticeSeed(
   pool: 'curated' | 'master',
   region: RegionId,
@@ -204,14 +236,11 @@ function pickPracticeSeed(
   // Region first, then the seen-list preference below. A region with a thin
   // pool falls back to its continent rather than handing back nothing —
   // "South-western Europe" should still be playable on the curated list.
-  let source: readonly PoolSeed[] = speciesForRegion(pool, region, { beginner });
-  if (source.length < MIN_REGION_POOL) {
-    const continentRoot: RegionId = getRegion(region)?.continent === 'eu' ? 'europe' : 'north-america';
-    source = speciesForRegion(pool, continentRoot, { beginner });
-  }
-  if (source.length === 0) {
-    source = pool === 'master' ? allSpecies() : CURATED_SPECIES;
-  }
+  //
+  // There is deliberately no further fallback to the raw roster: that list
+  // includes birds with no pre-built dossier, and drawing one would 404. An
+  // empty pool is reported as an error the player can see.
+  const source = withContinentFallback(pool, region, beginner);
   if (source.length === 0) return null;
 
   const seenIds = new Set(seen);
@@ -285,26 +314,19 @@ export function GameProvider(props: { mode: GameMode; children: ReactNode }): JS
 
       try {
         let dossier: SpeciesDossier;
-        let dateKey = todayKey();
+        // Read once per load, so a round started at 23:59:59 UTC draws and banks
+        // against the same day even if it resolves after midnight.
+        const dateKey = todayKey();
         let servedSeedId: string | null = null;
 
         if (config.daily) {
-          const payload = await fetchJson(
-            `/api/daily?mode=${encodeURIComponent(config.id)}&region=${encodeURIComponent(region)}` +
-              (beginner ? '&beginner=1' : ''),
-            controller.signal,
-            "Today's puzzle",
+          const seed = pickDailySeed(config, region, beginner, dateKey);
+          if (seed === null) {
+            throw new Error('No species are available in this region yet.');
+          }
+          dossier = asDossier(
+            await fetchJson(dossierUrl(seed.id), controller.signal, "Today's puzzle"),
           );
-          if (typeof payload !== 'object' || payload === null) {
-            throw new Error("Today's puzzle came back empty.");
-          }
-          const envelope = payload as { date?: unknown; species?: unknown };
-          if (typeof envelope.date === 'string' && DATE_KEY_PATTERN.test(envelope.date)) {
-            // The server's date is authoritative for the streak: it is the key
-            // the puzzle was drawn for, which is not always the client's today.
-            dateKey = envelope.date;
-          }
-          dossier = asDossier(envelope.species);
         } else {
           const persisted = loadState();
           const seed = pickPracticeSeed(
@@ -318,13 +340,8 @@ export function GameProvider(props: { mode: GameMode; children: ReactNode }): JS
             throw new Error('No species are available in this pool.');
           }
 
-          const query =
-            seed.inatTaxonId === null
-              ? `name=${encodeURIComponent(seed.scientificName)}`
-              : `id=${encodeURIComponent(String(seed.inatTaxonId))}`;
-
           dossier = asDossier(
-            await fetchJson(`/api/species?${query}`, controller.signal, 'That species'),
+            await fetchJson(dossierUrl(seed.id), controller.signal, 'That species'),
           );
           servedSeedId = seed.id;
         }

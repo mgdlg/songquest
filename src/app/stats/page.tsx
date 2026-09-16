@@ -20,7 +20,6 @@ import { todayKey } from '@/lib/game/daily'
 import { Panel } from '@/components/ui/Panel'
 import { Button } from '@/components/ui/Button'
 import { Seal } from '@/components/ui/Seal'
-import { AvatarFrame } from '@/components/ui/AvatarFrame'
 import { Skeleton } from '@/components/ui/Skeleton'
 import styles from './page.module.css'
 
@@ -350,12 +349,11 @@ function StatsBody({
         <Panel raised className={styles.rankPanel}>
           <div className={styles.rankBody}>
             <div className={styles.medallion}>
+              {/* The rank glyph, not the profile's avatarUrl: that points at
+                  /avatars/*.svg plates that were never drawn, so every player
+                  saw a broken image here. Swap back once the art exists. */}
               <Seal size={116} tone="brass">
-                {profile.avatarUrl ? (
-                  <AvatarFrame src={profile.avatarUrl} alt="" size={88} />
-                ) : (
-                  <span className={styles.sealGlyph}>{tierGlyph(progress.tier)}</span>
-                )}
+                <span className={styles.sealGlyph}>{tierGlyph(progress.tier)}</span>
               </Seal>
             </div>
 

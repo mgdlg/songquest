@@ -43,32 +43,28 @@ for /f "delims=" %%v in ('node --version') do set "NODEVER=%%v"
 echo   Node %NODEVER%
 
 rem ---------------------------------------------------------------------
-rem The Xeno-canto key. Without it every round fails to load while the
-rem menus still render, which reads like a bug in the game rather than a
-rem missing credential - so say so plainly before anything starts.
+rem Bird data. Rounds are played from pre-generated dossiers in
+rem public\data\species, so no API key is needed to play - only to
+rem regenerate them. An empty folder is the one state where every round
+rem would fail, so that is what gets checked.
 rem ---------------------------------------------------------------------
-set "HAVEKEY="
-if exist ".env.local" (
-  findstr /r /c:"^XENO_CANTO_API_KEY=..*" ".env.local" >nul 2>nul && set "HAVEKEY=1"
-)
+set "HAVEDATA="
+if exist "public\data\species\*.json" set "HAVEDATA=1"
 
-if not defined HAVEKEY (
+if not defined HAVEDATA (
   echo.
-  echo   ** No Xeno-canto API key found in .env.local **
+  echo   ** No bird data found in public\data\species **
   echo.
-  echo   The menus will load but no round can start: every recording
-  echo   comes from Xeno-canto, and its API returns 401 without a key.
+  echo   The menus will load but no round can start. Generate the data
+  echo   once with a Xeno-canto API key in .env.local:
   echo.
-  echo   A key is free - register at https://xeno-canto.org/ then put
-  echo   this line in a file called .env.local next to this script:
-  echo.
-  echo       XENO_CANTO_API_KEY=your-key-here
+  echo       npx tsx scripts/generate-dossiers.ts
   echo.
   choice /c YN /n /m "   Start anyway? [Y/N] "
   if errorlevel 2 exit /b 1
   echo.
 ) else (
-  echo   Xeno-canto key found
+  echo   Bird data found
 )
 
 rem ---------------------------------------------------------------------

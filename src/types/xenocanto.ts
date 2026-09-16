@@ -160,9 +160,6 @@ const KNOWN_LICENSE_CODES: readonly string[] = [
   'by-nc-nd',
 ];
 
-/** Route through our own handler so the browser never hits xeno-canto directly. */
-export const XC_AUDIO_PROXY_PATH = '/api/audio';
-
 /* ------------------------------------------------------------------ */
 /* Normalised record                                                   */
 /* ------------------------------------------------------------------ */
@@ -189,8 +186,6 @@ export interface XcRecording {
   stage: string | null;
   /** Absolute https URL of the audio on xeno-canto. */
   fileUrl: string;
-  /** `fileUrl` routed through `/api/audio`; this is what a client should play. */
-  proxyUrl: string;
   fileName: string | null;
   /** Largest sonogram offered, absolute; null when the catalogue has none. */
   sonogramUrl: string | null;
@@ -347,13 +342,6 @@ export function isPermissiveXcLicense(license: XcLicense): boolean {
   return XC_PERMISSIVE_LICENSES.includes(license.code);
 }
 
-/** Builds the `/api/audio` URL for an upstream xeno-canto file. */
-export function proxiedAudioUrl(fileUrl: string): string {
-  const absolute = absoluteXcUrl(fileUrl);
-  if (absolute === '') return '';
-  return `${XC_AUDIO_PROXY_PATH}?src=${encodeURIComponent(absolute)}`;
-}
-
 function parseQuality(raw: string): string | null {
   const grade = raw.trim().toUpperCase();
   return /^[A-E]$/.test(grade) ? grade : null;
@@ -413,7 +401,6 @@ export function parseXcRecording(raw: unknown): XcRecording | null {
     sex: orNull(text(source, 'sex')),
     stage: orNull(text(source, 'stage')),
     fileUrl,
-    proxyUrl: proxiedAudioUrl(fileUrl),
     fileName: orNull(text(source, 'file-name')),
     sonogramUrl: pickSonogram(source),
     alsoHeard: Array.isArray(alsoRaw)

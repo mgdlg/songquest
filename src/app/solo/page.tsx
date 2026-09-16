@@ -139,7 +139,7 @@ export default function SoloPage() {
         <span className={styles.toggleText}>
           <span className={styles.toggleLabel}>Hardcore</span>
           <span className={styles.toggleNote}>
-            {hardcore ? 'One clip · 15s a guess · full list' : 'Three clips · no clock · curated list'}
+            {hardcore ? 'One clip · 15s a guess · full list' : 'Every recording · no clock · curated list'}
           </span>
         </span>
         <span className={styles.track} data-on={hardcore} aria-hidden="true">

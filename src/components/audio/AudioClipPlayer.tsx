@@ -9,7 +9,7 @@ import { Waveform } from './Waveform';
 import styles from './AudioClipPlayer.module.css';
 
 export interface AudioClipPlayerProps {
-  /** Already proxied through /api/audio — never a raw upstream URL. */
+  /** A direct https Xeno-canto URL, validated when the dossier was generated. */
   src: string;
   kind: ClipKind;
   credit?: AudioCredit | null;
